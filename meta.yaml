@@ -1,0 +1,30 @@
+package:
+    name: ilmbase
+    version: 2.2.0
+
+source:
+    fn: ilmbase-2.2.0.tar.gz
+    url: http://download.savannah.nongnu.org/releases/openexr/ilmbase-2.2.0.tar.gz
+    sha256: ecf815b60695555c1fbc73679e84c7c9902f4e8faa6e8000d2f905b8b86cedc7
+
+build:
+    number: 0
+
+requirements:
+    build:
+        - cmake
+        - make
+        # - {{ compiler('cxx') }}
+        - gcc-6
+    run:
+
+test:
+    imports:
+
+    commands:
+
+about:
+    home: http://www.openexr.com/
+    license: Modified BSD license
+
+
