@@ -1,0 +1,41 @@
+language: generic
+os: osx
+osx_image: xcode6.4
+env:
+  matrix:
+  - CONDA_PY=36
+  global:
+    secure: QM6AUZYyVyc0iFcHdOlEUlBuP6FfHCyfeJBP3EzdTZGOcshg90JSEteQmhkIaWOlRnusxe12wD1ilcMtoQVvmzy2JBI3FfbazVMM+S2YL8TTgOBKMbeNzJrQOOyU4asZDJ2ikPF4/wif7OO4xX46U9R/kCTWWachObHlqvhhr4F4pQAcdXtWtinCO03jSKSOfHn1sGccVirFOMJwP9LPItbk/kcAtExrM7dYGECBkCaPC1MOeHtfOwAFPZ0N0j+YrBnW+Pr2AJyDIzwvKRGVFFqbKU5jhqSLhu/3ugNz02oVeJp22mvx1J1o/rMOEtsiTn00rAKFSg/FLXb7wG7fUWIiYKIVPY7UkiwQvrfL5YJVzWB9xamyxJMyZwMf5sdWpq4CcWH7nCbRH3JtDeMFmV0QsFe5sXSOfVqG0F4OAFyYXUevW8Z545XwMYSFm64nSPupWrg+4V3030jYpTea+9PhnNCwauGVL9Npa/GPGKqfLSVx8G68t7v+YHgM7iuoRb2KkEhWsA88kjZRPXGgiCvMozXfFR0XrvS/AGC3CHbFJyhK1jQzHKkzHRRTfS8tZYDbrukrH/yNcwtwNwXTO+osm+ZL9qGSpBBrw0b8pic341yo54GRz9pc/5SPa0zIfPa44lCmBNZ0mrzU4jm+9KNt4KHybGbOEStZ3LB7vaY=
+before_install:
+- |
+  (curl https://raw.githubusercontent.com/conda-forge/conda-forge-build-setup-feedstock/master/recipe/ff_ci_pr_build.py | \
+      python - -v --ci "travis" "${TRAVIS_REPO_SLUG}" "${TRAVIS_BUILD_NUMBER}" "${TRAVIS_PULL_REQUEST}") || exit 1
+- |
+  echo ""
+  echo "Removing homebrew from Travis CI to avoid conflicts."
+  curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall > ~/uninstall_homebrew
+  chmod +x ~/uninstall_homebrew
+  ~/uninstall_homebrew -fq
+  rm ~/uninstall_homebrew
+install:
+- |
+  echo ""
+  echo "Installing a fresh version of Miniconda."
+  MINICONDA_URL="https://repo.continuum.io/miniconda"
+  MINICONDA_FILE="Miniconda3-latest-MacOSX-x86_64.sh"
+  curl -L -O "${MINICONDA_URL}/${MINICONDA_FILE}"
+  bash $MINICONDA_FILE -b
+- |
+  echo ""
+  echo "Configuring conda."
+  source /Users/travis/miniconda3/bin/activate root
+  conda config --remove channels defaults
+  conda config --add channels defaults
+  conda config --add channels conda-forge
+  conda config --add channels QuantStack
+  conda config --set show_channel_urls true
+  conda install --yes --quiet conda-forge-build-setup
+  source run_conda_forge_build_setup
+script:
+- conda build ./recipe
+- upload_or_check_non_existence ./recipe QuantStack --channel=main

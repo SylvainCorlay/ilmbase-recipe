@@ -15,7 +15,7 @@ requirements:
         - cmake
         - make
         # - {{ compiler('cxx') }}
-        - gcc-6
+        - gcc-7  # [linux]
     run:
 
 test:
